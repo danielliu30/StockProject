@@ -18,6 +18,9 @@ namespace GrabData
             MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
+        /*
+         *Reads in Yahoo Finacne Page and loads an HTML file 
+         */
         async static Task MainAsync(string[] args)
         {
             HttpClient client = new HttpClient();
@@ -35,19 +38,17 @@ namespace GrabData
                 {
                     ExtractData(pageRead);
                 }
-
-
             }
-
         }
 
+        /*
+        *Extracts daily Snp500 values and updates collection
+        */
         private static void ExtractData(HtmlDocument pageRead)
         {
-
             var dataList = pageRead.DocumentNode.SelectNodes("//tr[@class]");
 
             List<DailySnP> list_timeSeriesStock = new List<DailySnP>();
-
 
             dataList.RemoveAt(0);
             dataList.RemoveAt(dataList.Count - 1);
@@ -64,7 +65,7 @@ namespace GrabData
                         CloseValue = float.Parse(dailyData.ChildNodes[4].InnerText),
                         AdjClose = float.Parse(dailyData.ChildNodes[5].InnerText),
                         Volume = float.Parse(dailyData.ChildNodes[6].InnerText)
-                        
+
                     });
 
                 }
@@ -72,11 +73,8 @@ namespace GrabData
                 {
                     //unable to create object
                 }
-
             }
-
             SnpCollection.CollectionData = list_timeSeriesStock;
         }
-
     }
 }
