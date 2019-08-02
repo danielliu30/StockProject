@@ -2,17 +2,31 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using WebAppStock.Connector;
 using WebAppStock.Models;
 
 namespace WebAppStock.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        ConsumeAPI _api = new ConsumeAPI();
+
+        public async Task<IActionResult> Index()
         {
-            return View();
+            List<StockItem> stock = new List<StockItem>();
+            HttpClient client = _api.Initialize();
+            HttpResponseMessage res = await client.GetAsync("api/Stock");
+            
+            if (res.IsSuccessStatusCode)
+            {
+                var result = res.Content.ReadAsStringAsync().Result;
+                stock = JsonConvert.DeserializeObject<List<StockItem>>(result);
+            }
+            return View(stock);
         }
 
         public IActionResult Privacy()
@@ -20,10 +34,5 @@ namespace WebAppStock.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
 }
