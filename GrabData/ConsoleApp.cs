@@ -1,13 +1,16 @@
 ﻿using HtmlAgilityPack;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using StockProcessor.StockObject;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using Unity;
 using WebAppStock;
-using WebAppStock.StockObject;
 
 namespace GrabData
 {
@@ -46,9 +49,13 @@ namespace GrabData
         */
         private static void ExtractData(HtmlDocument pageRead)
         {
-            var dataList = pageRead.DocumentNode.SelectNodes("//tr[@class]");
+            string connection = "mongodb://localhost";
+            MongoClient client = new MongoClient(connection);
+            var database = client.GetDatabase("Stock");
+            var collection = database.GetCollection<StockItem>("SNP500");
 
-            List<DailySnP> list_timeSeriesStock = new List<DailySnP>();
+            var dataList = pageRead.DocumentNode.SelectNodes("//tr[@class]");
+            List<StockItem> list_timeSeriesStock = new List<StockItem>();
 
             dataList.RemoveAt(0);
             dataList.RemoveAt(dataList.Count - 1);
@@ -56,7 +63,20 @@ namespace GrabData
             {
                 try
                 {
-                    list_timeSeriesStock.Add(new DailySnP
+
+                    collection.InsertOne(new StockItem
+                    {
+                        TodaysDate = dailyData.ChildNodes[0].InnerText,
+                        OpeningValue = float.Parse(dailyData.ChildNodes[1].InnerText),
+                        HighValue = float.Parse(dailyData.ChildNodes[2].InnerText),
+                        LowValue = float.Parse(dailyData.ChildNodes[3].InnerText),
+                        CloseValue = float.Parse(dailyData.ChildNodes[4].InnerText),
+                        AdjClose = float.Parse(dailyData.ChildNodes[5].InnerText),
+                        Volume = float.Parse(dailyData.ChildNodes[6].InnerText)
+
+                    });
+
+                    list_timeSeriesStock.Add(new StockItem
                     {
                         TodaysDate = dailyData.ChildNodes[0].InnerText,
                         OpeningValue = float.Parse(dailyData.ChildNodes[1].InnerText),
@@ -73,8 +93,8 @@ namespace GrabData
                 {
                     //unable to create object
                 }
+
             }
-            SnpCollection.CollectionData = list_timeSeriesStock;
         }
     }
 }
