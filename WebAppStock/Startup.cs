@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebAppStock.AdditionalData;
+using WebAppStock.Connector;
 
 namespace WebAppStock
 {
@@ -31,7 +33,9 @@ namespace WebAppStock
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddSingleton<IConsumeAPI, ConsumeAPI>();
 
+            services.AddHttpClient<IConsumeAPI, ConsumeAPI>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
