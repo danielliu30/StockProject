@@ -11,6 +11,8 @@ namespace WebAppStock.Connector
     {
 
         private readonly HttpClient _httpClient;
+        private List<StockItem> stockList = null;
+        private StockItem oneStock = null;
 
         public ConsumeAPI(HttpClient httpClient)
         {
@@ -20,21 +22,18 @@ namespace WebAppStock.Connector
 
         public async Task<List<StockItem>> GetStockList()
         {
-            var stockList = new List<StockItem>();
             var res = await _httpClient.GetAsync("api/Stock");
             if (res.IsSuccessStatusCode)
             {
                 var result = res.Content.ReadAsStringAsync().Result;
                 stockList = JsonConvert.DeserializeObject<List<StockItem>>(result);
-                float[] X = new float[stockList.Count];
-                float[] Y = new float[stockList.Count];
+
             }
             return stockList;
         }
 
         public async Task<StockItem> GetIndividualStock(string id)
         {
-            var oneStock = new StockItem();
             var res = await _httpClient.GetAsync($"api/Stock/{id}");
             if (res.IsSuccessStatusCode)
             {
