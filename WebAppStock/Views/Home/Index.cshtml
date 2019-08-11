@@ -1,4 +1,4 @@
-﻿@model List<StockItem>
+﻿@model StockCollection
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -9,21 +9,39 @@
 </head>
 <body>
     <div class="container">
-        <div class="text-block" style="text-align:center">
-            @foreach (var item in Model)
+        <div id="myDiv" style=""></div>
+        <script type="text/javascript">
+
+            var xAxis = [];
+
+            @foreach (var d in Model.Xaxis)
             {
-               <a class="bg-info" asp-controller="Home" asp-action="Analyze" asp-route-Id="@item.Id">@item.TodaysDate</a>
+                @:xAxis.push("@d");
             }
-        </div>
-        <div id="tester" style="align-content:center"></div>
-        <script>
-            TESTER = document.getElementById('tester');
-            Plotly.plot(TESTER, [{
-                x: [1, 2, 3, 4, 5],
-                y: [1, 2, 4, 8, 16]
-            }], {
-                    margin: { t: 0 }
-                });
+
+            var yAxis = [];
+
+            @foreach (var d in Model.Yaxis)
+            {
+                @:yAxis.push("@d");
+            }
+            var myPlot = document.getElementById('myDiv'),
+                x = xAxis,
+                y = yAxis,
+                data = [{
+                    x: x, y: y, type: 'scatter'
+                }],
+                layout = {
+                    hovermode: 'closest',
+                    title: 'Click on Points'
+                };
+
+            Plotly.newPlot('myDiv', data, layout);
+
+            myPlot.on('plotly_click', function (data) {
+               var url = "/Home/Analyze";
+               window.location.href = url;
+            });
         </script>
     </div>
 </body>
