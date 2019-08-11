@@ -15,6 +15,7 @@ namespace WebAppStock.Controllers
     public class HomeController : Controller
     {
         private readonly IConsumeAPI _api;
+        private readonly StockCollection _stockCollection = new StockCollection();
 
         public HomeController(IConsumeAPI api)
         {
@@ -22,15 +23,18 @@ namespace WebAppStock.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {
-            List<StockItem> stockList = await _api.GetStockList();
-          
-            return View(stockList);
+         {
+            
+            _stockCollection.allStocks = await _api.GetStockList();
+            _stockCollection.Xaxis = _stockCollection.allStocks.Select(stock => stock.TodaysDate).ToArray();
+            _stockCollection.Yaxis = _stockCollection.allStocks.Select(stock => stock.HighValue).ToArray();
+
+            return View(_stockCollection);
         }
 
-        public async Task<IActionResult> Analyze(string Id)
+        public async Task<IActionResult> Analyze(/*string Id*/)
         {
-            StockItem stock = await _api.GetIndividualStock(Id);
+            //StockItem stock = await _api.GetIndividualStock(Id);
 
             return View();
         }
