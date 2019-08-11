@@ -9,7 +9,7 @@ namespace WebAppStock.Models
     {
         public IEnumerable<StockItem> allStocks { get; set; }
 
-        public float[] Xaxis { get; set; }
+        public string[] Xaxis { get; set; }
 
         public float[] Yaxis { get; set; }
     }
